@@ -22,6 +22,7 @@ const spawn = require('react-dev-utils/crossSpawn');
 const { defaultBrowsers } = require('react-dev-utils/browsersHelper');
 const os = require('os');
 const verifyTypeScriptSetup = require('./utils/verifyTypeScriptSetup');
+const inquirer = require('inquirer');
 
 function isInGitRepository() {
   try {
@@ -75,6 +76,9 @@ function tryGitInit(appPath) {
   }
 }
 
+const TYPE_APP = 'app';
+const TYPE_LIBRARY = 'lib';
+
 module.exports = async function(
   appPath,
   appName,
@@ -88,6 +92,22 @@ module.exports = async function(
   const appPackage = require(path.join(appPath, 'package.json'));
   const useYarn = fs.existsSync(path.join(appPath, 'yarn.lock'));
 
+  // Customize what kind of answers do we want ask to our users
+  const answers = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'type',
+      message: 'What are you building?',
+      default: 0,
+      choices: [
+        { name: 'Application', value: TYPE_APP },
+        { name: 'Library', value: TYPE_LIBRARY },
+      ],
+    },
+  ]);
+
+  let appType = answers.type;
+
   // Copy over some of the devDependencies
   appPackage.dependencies = appPackage.dependencies || {};
 
@@ -95,11 +115,18 @@ module.exports = async function(
 
   // Setup the script rules
   appPackage.scripts = {
-    start: 'react-scripts start',
-    build: 'react-scripts build',
     test: 'react-scripts test',
     eject: 'react-scripts eject',
   };
+
+  if (appType === TYPE_APP) {
+    appPackage.scripts.start = 'react-scripts start';
+    appPackage.scripts.build = 'react-scripts build';
+    appPackage.scripts.docs = 'react-scripts docs';
+  } else {
+    appPackage.scripts.start = 'react-scripts docs';
+    appPackage.scripts.build = 'react-scripts build-lib';
+  }
 
   // Setup the eslint config
   appPackage.eslintConfig = {
