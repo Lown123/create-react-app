@@ -75,7 +75,7 @@ function tryGitInit(appPath) {
   }
 }
 
-module.exports = function(
+module.exports = async function(
   appPath,
   appName,
   verbose,
@@ -162,33 +162,70 @@ module.exports = function(
     args = ['add'];
   } else {
     command = 'npm';
-    args = ['install', '--save', verbose && '--verbose'].filter(e => e);
+    args = ['install', verbose && '--verbose'].filter(e => e);
   }
   args.push('react', 'react-dom');
+
+  // CUSTOM LUCID PACKAGES
+  args.push(
+    'typescript',
+    '@types/react',
+    '@types/react-dom',
+    '@types/jest',
+    'typescript'
+  );
 
   // Install additional template dependencies, if present
   const templateDependenciesPath = path.join(
     appPath,
     '.template.dependencies.json'
   );
+
+  let dependencies = [];
+  let devDependencies = [];
+
   if (fs.existsSync(templateDependenciesPath)) {
-    const templateDependencies = require(templateDependenciesPath).dependencies;
-    args = args.concat(
-      Object.keys(templateDependencies).map(key => {
-        return `${key}@${templateDependencies[key]}`;
-      })
-    );
+    const templateJson = require(templateDependenciesPath);
+    const templateDependencies = templateJson.dependencies;
+    const templateDevDependencies = templateJson.devDependencies;
+
+    dependencies = Object.keys(templateDependencies).map(key => {
+      return `${key}@${templateDependencies[key]}`;
+    });
+
+    devDependencies = Object.keys(templateDevDependencies).map(key => {
+      return `${key}@${templateDependencies[key]}`;
+    });
+
     fs.unlinkSync(templateDependenciesPath);
   }
 
-  // Install react and react-dom for backward compatibility with old CRA cli
-  // which doesn't install react and react-dom along with react-scripts
-  // or template is presetend (via --internal-testing-template)
-  if (!isReactInstalled(appPackage) || template) {
-    console.log(`Installing react and react-dom using ${command}...`);
+  if (dependencies.length > 0) {
+    console.log(`Installing ${dependencies.join(', ')} using ${command}...`);
     console.log();
+    if (!useYarn) {
+      args.push('--save');
+    }
+    const proc = spawn.sync(command, args.concat(dependencies), {
+      stdio: 'inherit',
+    });
+    if (proc.status !== 0) {
+      console.error(`\`${command} ${args.join(' ')}\` failed`);
+      return;
+    }
+  }
 
-    const proc = spawn.sync(command, args, { stdio: 'inherit' });
+  if (devDependencies.length > 0) {
+    console.log(`Installing ${devDependencies.join(', ')} using ${command}...`);
+    console.log();
+    if (useYarn) {
+      args.push('--dev');
+    } else {
+      args.push('--save-dev');
+    }
+    const proc = spawn.sync(command, args.concat(devDependencies), {
+      stdio: 'inherit',
+    });
     if (proc.status !== 0) {
       console.error(`\`${command} ${args.join(' ')}\` failed`);
       return;
