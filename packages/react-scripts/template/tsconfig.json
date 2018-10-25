@@ -1,6 +1,7 @@
 {
     "extends": "./node_modules/@lucidhq/lucid-scripts/config/tsconfig.json",
     "compilerOptions": {
+        "baseUrl": "./",
         "paths": {
             "~/*": ["./src/*"]   
         }
