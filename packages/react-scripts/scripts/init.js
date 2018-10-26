@@ -125,7 +125,7 @@ module.exports = async function(
     appPackage.scripts.docs = 'react-scripts docs';
   } else {
     appPackage.scripts.start = 'react-scripts docs';
-    appPackage.scripts.build = 'react-scripts build-lib';
+    appPackage.scripts.build = 'tsc';
     appPackage.main = 'dist/index.js';
     appPackage.module = 'dist/index.es.js';
     appPackage.files = ['dist'];
@@ -156,7 +156,8 @@ module.exports = async function(
   // Copy the files for the user
   const templatePath = template
     ? path.resolve(originalDirectory, template)
-    : path.join(ownPath, useTypeScript ? 'template-typescript' : 'template');
+    : path.join(ownPath, 'templates', appType);
+
   if (fs.existsSync(templatePath)) {
     fs.copySync(templatePath, appPath);
   } else {
@@ -215,7 +216,7 @@ module.exports = async function(
     });
 
     devDependencies = Object.keys(templateDevDependencies).map(key => {
-      return `${key}@${devDependencies[key]}`;
+      return `${key}@${templateDevDependencies[key]}`;
     });
 
     fs.unlinkSync(templateDependenciesPath);

@@ -2,10 +2,11 @@
     "extends": "./tsconfig.json",
     "compilerOptions": {
         "declaration": true,
-        "declarationDir": "./dist",
+        "allowJs": false,
+        "isolatedModules": false,
         "module": "esnext",
-        "noImplicitAny": true,
-        "outDir": "./dist",
-        "target": "es5"
+        "noEmit": false,
+        "target": "es6",
+        "jsx": "react"
     }
 }
