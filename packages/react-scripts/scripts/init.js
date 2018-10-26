@@ -126,6 +126,10 @@ module.exports = async function(
   } else {
     appPackage.scripts.start = 'react-scripts docs';
     appPackage.scripts.build = 'react-scripts build-lib';
+    appPackage.main = 'dist/index.js';
+    appPackage.module = 'dist/index.es.js';
+    appPackage.files = ['dist'];
+    appPackage.types = 'dist/index.d.ts';
   }
 
   // Setup the eslint config
@@ -191,16 +195,6 @@ module.exports = async function(
     command = 'npm';
     args = ['install', verbose && '--verbose'].filter(e => e);
   }
-  args.push('react', 'react-dom');
-
-  // CUSTOM LUCID PACKAGES
-  args.push(
-    'typescript',
-    '@types/react',
-    '@types/react-dom',
-    '@types/jest',
-    'typescript'
-  );
 
   // Install additional template dependencies, if present
   const templateDependenciesPath = path.join(
@@ -221,7 +215,7 @@ module.exports = async function(
     });
 
     devDependencies = Object.keys(templateDevDependencies).map(key => {
-      return `${key}@${templateDependencies[key]}`;
+      return `${key}@${devDependencies[key]}`;
     });
 
     fs.unlinkSync(templateDependenciesPath);
