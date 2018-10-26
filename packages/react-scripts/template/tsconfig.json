@@ -1,5 +1,5 @@
 {
-    "extends": "./node_modules/@lucidhq/lucid-scripts/config/tsconfig.json",
+    "extends": "./node_modules/@lucidhq/react-scripts/config/tsconfig.json",
     "compilerOptions": {
         "baseUrl": "./",
         "paths": {
