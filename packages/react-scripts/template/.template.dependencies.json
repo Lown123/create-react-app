@@ -1,9 +1,9 @@
 {
   "dependencies": {},
   "devDependencies": {
-    "typescript": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
-    "@types/jest": "latest"
+    "typescript": "3.1.3",
+    "@types/react": "16.14.18",
+    "@types/react-dom": "16.0.9",
+    "@types/jest": "23.3.7"
   }
 }

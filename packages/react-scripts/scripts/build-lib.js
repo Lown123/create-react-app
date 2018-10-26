@@ -44,13 +44,13 @@ if (!checkRequiredFiles([paths.appIndexJs])) {
 async function build() {
   try {
     console.log('Creating a production build...');
-    const pkg = require(paths.appPackageJson);
+    const appPackage = require(paths.appPackageJson);
 
     const inputOptions = {
       input: paths.appIndexJs,
       external: [
-        ...Object.keys(pkg.dependencies || {}),
-        ...Object.keys(pkg.peerDependencies || {}),
+        ...Object.keys(appPackage.dependencies || {}),
+        ...Object.keys(appPackage.peerDependencies || {}),
       ],
       plugins: [
         rollupTypescript({
@@ -62,11 +62,11 @@ async function build() {
 
     const outputFormats = [
       {
-        file: pkg.main,
+        file: appPackage.main,
         format: 'cjs',
       },
       {
-        file: pkg.module,
+        file: appPackage.module,
         format: 'es',
       },
     ];
@@ -86,4 +86,4 @@ async function build() {
   }
 }
 
-Promise.resolve(build());
+build();
