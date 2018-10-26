@@ -167,6 +167,8 @@ module.exports = async function(
     return;
   }
 
+  fs.copySync(path.join(ownPath, 'templates', 'common'), appPath);
+
   // Rename gitignore after the fact to prevent npm from renaming it to .npmignore
   // See: https://github.com/npm/npm/issues/1862
   try {
