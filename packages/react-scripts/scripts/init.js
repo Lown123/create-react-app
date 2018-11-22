@@ -137,6 +137,11 @@ module.exports = async function(
     extends: 'react-app',
   };
 
+  // Setup the prettier config
+  appPackage.prettier = {
+    singleQuote: true,
+  };
+
   // Setup the browsers list
   appPackage.browserslist = defaultBrowsers;
 
@@ -227,12 +232,15 @@ module.exports = async function(
   if (dependencies.length > 0) {
     console.log(`Installing ${dependencies.join(', ')} using ${command}...`);
     console.log();
+
     if (!useYarn) {
       args.push('--save');
     }
+
     const proc = spawn.sync(command, args.concat(dependencies), {
       stdio: 'inherit',
     });
+
     if (proc.status !== 0) {
       console.error(`\`${command} ${args.join(' ')}\` failed`);
       return;
