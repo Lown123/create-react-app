@@ -1,8 +1,15 @@
-import React from 'react'
+import React from 'react';
+
+type DummyProps = {
+  /** Title of the document */  
+  title?: String;
+};
 
 /**
- * Delete me!
+ * Dummy component
  */
-const Dummy : React.SFC = () => (
-    <h1>Delete me!</h1>
-)
+const Dummy: React.SFC<DummyProps> = ({ title = 'Delete me!' }) => (
+  <h1>{title}</h1>
+);
+
+export default Dummy;
