@@ -1,3 +1,5 @@
+const paths = require('./paths');
+
 export default {
   typescript: true,
   modifyBundlerConfig: config => {
