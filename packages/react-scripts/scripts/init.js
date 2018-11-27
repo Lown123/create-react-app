@@ -261,6 +261,8 @@ module.exports = async function(appPath, appName, verbose, originalDirectory) {
     args = ['install', verbose && '--verbose'];
   }
 
+  console.log({ dependencies, devDependencies });
+
   // Install additional template dependencies, if present
   installDependencies(dependencies, command, [...args, !useYarn && '--save']);
   installDependencies(devDependencies, command, [
