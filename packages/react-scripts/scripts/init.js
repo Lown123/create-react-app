@@ -76,16 +76,87 @@ function tryGitInit(appPath) {
   }
 }
 
+function copyTemplateAndExtractDependencies(templatePath, appPath) {
+  // Copies the template path
+  if (fs.existsSync(templatePath)) {
+    fs.copySync(templatePath, appPath);
+  } else {
+    console.error(
+      `Could not locate supplied template: ${chalk.green(templatePath)}`
+    );
+    return;
+  }
+
+  // Rename gitignore after the fact to prevent npm from renaming it to .npmignore
+  // See: https://github.com/npm/npm/issues/1862
+  try {
+    fs.moveSync(
+      path.join(appPath, 'gitignore'),
+      path.join(appPath, '.gitignore'),
+      []
+    );
+  } catch (err) {
+    // Append if there's already a `.gitignore` file there
+    if (err.code === 'EEXIST') {
+      const data = fs.readFileSync(path.join(appPath, 'gitignore'));
+      fs.appendFileSync(path.join(appPath, '.gitignore'), data);
+      fs.unlinkSync(path.join(appPath, 'gitignore'));
+    } else {
+      throw err;
+    }
+  }
+
+  const templateDependenciesPath = path.join(
+    appPath,
+    '.template.dependencies.json'
+  );
+
+  let dependencies = [];
+  let devDependencies = [];
+
+  if (fs.existsSync(templateDependenciesPath)) {
+    const templateJson = require(templateDependenciesPath);
+    const templateDependencies = templateJson.dependencies;
+    const templateDevDependencies = templateJson.devDependencies;
+
+    dependencies = Object.keys(templateDependencies).map(key => {
+      return `${key}@${templateDependencies[key]}`;
+    });
+
+    devDependencies = Object.keys(templateDevDependencies).map(key => {
+      return `${key}@${templateDevDependencies[key]}`;
+    });
+
+    fs.unlinkSync(templateDependenciesPath);
+  }
+
+  return { dependencies, devDependencies };
+}
+
+function installDependencies(dependencies, command, args) {
+  if (dependencies.length > 0) {
+    console.log(`Installing ${dependencies.join(', ')} using ${command}...`);
+    console.log();
+
+    const proc = spawn.sync(
+      command,
+      args.concat(dependencies).filter(Boolean),
+      {
+        stdio: 'inherit',
+      }
+    );
+
+    if (proc.status !== 0) {
+      console.error(`\`${command} ${args.join(' ')}\` failed`);
+      return;
+    }
+  }
+}
+
 const TYPE_APP = 'app';
 const TYPE_LIBRARY = 'lib';
 
-module.exports = async function(
-  appPath,
-  appName,
-  verbose,
-  originalDirectory,
-  template
-) {
+module.exports = async function(appPath, appName, verbose, originalDirectory) {
   const ownPath = path.dirname(
     require.resolve(path.join(__dirname, '..', 'package.json'))
   );
@@ -158,40 +229,23 @@ module.exports = async function(
     );
   }
 
-  // Copy the files for the user
-  const templatePath = template
-    ? path.resolve(originalDirectory, template)
-    : path.join(ownPath, 'templates', appType);
+  // First copies common template, then appType template to make sure it
+  // overwrites everything
+  const templatePaths = [
+    path.join(ownPath, 'templates', 'common'),
+    path.join(ownPath, 'templates', appType),
+  ];
 
-  if (fs.existsSync(templatePath)) {
-    fs.copySync(templatePath, appPath);
-  } else {
-    console.error(
-      `Could not locate supplied template: ${chalk.green(templatePath)}`
+  const dependencies = [];
+  const devDependencies = [];
+
+  templatePaths.forEach(templatePath => {
+    const templateDependencies = copyTemplateAndExtractDependencies(
+      templatePath
     );
-    return;
-  }
-
-  fs.copySync(path.join(ownPath, 'templates', 'common'), appPath);
-
-  // Rename gitignore after the fact to prevent npm from renaming it to .npmignore
-  // See: https://github.com/npm/npm/issues/1862
-  try {
-    fs.moveSync(
-      path.join(appPath, 'gitignore'),
-      path.join(appPath, '.gitignore'),
-      []
-    );
-  } catch (err) {
-    // Append if there's already a `.gitignore` file there
-    if (err.code === 'EEXIST') {
-      const data = fs.readFileSync(path.join(appPath, 'gitignore'));
-      fs.appendFileSync(path.join(appPath, '.gitignore'), data);
-      fs.unlinkSync(path.join(appPath, 'gitignore'));
-    } else {
-      throw err;
-    }
-  }
+    dependencies.push(templateDependencies.dependencies);
+    devDependencies.push(templateDependencies.devDependencies);
+  });
 
   let command;
   let args;
@@ -201,68 +255,15 @@ module.exports = async function(
     args = ['add'];
   } else {
     command = 'npm';
-    args = ['install', verbose && '--verbose'].filter(e => e);
+    args = ['install', verbose && '--verbose'];
   }
 
   // Install additional template dependencies, if present
-  const templateDependenciesPath = path.join(
-    appPath,
-    '.template.dependencies.json'
-  );
-
-  let dependencies = [];
-  let devDependencies = [];
-
-  if (fs.existsSync(templateDependenciesPath)) {
-    const templateJson = require(templateDependenciesPath);
-    const templateDependencies = templateJson.dependencies;
-    const templateDevDependencies = templateJson.devDependencies;
-
-    dependencies = Object.keys(templateDependencies).map(key => {
-      return `${key}@${templateDependencies[key]}`;
-    });
-
-    devDependencies = Object.keys(templateDevDependencies).map(key => {
-      return `${key}@${templateDevDependencies[key]}`;
-    });
-
-    fs.unlinkSync(templateDependenciesPath);
-  }
-
-  if (dependencies.length > 0) {
-    console.log(`Installing ${dependencies.join(', ')} using ${command}...`);
-    console.log();
-
-    if (!useYarn) {
-      args.push('--save');
-    }
-
-    const proc = spawn.sync(command, args.concat(dependencies), {
-      stdio: 'inherit',
-    });
-
-    if (proc.status !== 0) {
-      console.error(`\`${command} ${args.join(' ')}\` failed`);
-      return;
-    }
-  }
-
-  if (devDependencies.length > 0) {
-    console.log(`Installing ${devDependencies.join(', ')} using ${command}...`);
-    console.log();
-    if (useYarn) {
-      args.push('--dev');
-    } else {
-      args.push('--save-dev');
-    }
-    const proc = spawn.sync(command, args.concat(devDependencies), {
-      stdio: 'inherit',
-    });
-    if (proc.status !== 0) {
-      console.error(`\`${command} ${args.join(' ')}\` failed`);
-      return;
-    }
-  }
+  installDependencies(dependencies, command, [...args, !useYarn && '--save']);
+  installDependencies(devDependencies, command, [
+    ...args,
+    useYarn ? '--dev' : '--save-dev',
+  ]);
 
   if (useTypeScript) {
     verifyTypeScriptSetup();
