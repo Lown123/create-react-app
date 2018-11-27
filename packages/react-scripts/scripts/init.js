@@ -246,8 +246,8 @@ module.exports = async function(appPath, appName, verbose, originalDirectory) {
       templatePath,
       appPath
     );
-    dependencies.push(templateDependencies.dependencies);
-    devDependencies.push(templateDependencies.devDependencies);
+    dependencies.push(...templateDependencies.dependencies);
+    devDependencies.push(...templateDependencies.devDependencies);
   });
 
   let command;
