@@ -241,7 +241,8 @@ module.exports = async function(appPath, appName, verbose, originalDirectory) {
 
   templatePaths.forEach(templatePath => {
     const templateDependencies = copyTemplateAndExtractDependencies(
-      templatePath
+      templatePath,
+      appPath
     );
     dependencies.push(templateDependencies.dependencies);
     devDependencies.push(templateDependencies.devDependencies);
