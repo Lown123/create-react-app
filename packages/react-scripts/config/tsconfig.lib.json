@@ -1,12 +1,12 @@
 {
-    "extends": "./tsconfig.json",
-    "compilerOptions": {
-        "declaration": true,
-        "allowJs": false,
-        "isolatedModules": false,
-        "module": "esnext",
-        "noEmit": false,
-        "target": "es6",
-        "jsx": "react"
-    }
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "allowJs": false,
+    "isolatedModules": false,
+    "module": "esnext",
+    "noEmit": false,
+    "target": "es6",
+    "jsx": "react"
+  }
 }

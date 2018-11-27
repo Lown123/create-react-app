@@ -1,9 +1,9 @@
 {
-    "extends": "./node_modules/@lucidhq/react-scripts/config/tsconfig.json",
-    "compilerOptions": {
-        "baseUrl": "./",
-        "paths": {
-            "~/*": ["./src/*"]   
-        }
+  "extends": "./node_modules/@lucidhq/react-scripts/config/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "~/*": ["./src/*"]
     }
+  }
 }
