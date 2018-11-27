@@ -21,7 +21,6 @@ const execSync = require('child_process').execSync;
 const spawn = require('react-dev-utils/crossSpawn');
 const { defaultBrowsers } = require('react-dev-utils/browsersHelper');
 const os = require('os');
-const verifyTypeScriptSetup = require('./utils/verifyTypeScriptSetup');
 const inquirer = require('inquirer');
 
 function isInGitRepository() {
@@ -184,8 +183,6 @@ module.exports = async function(appPath, appName, verbose, originalDirectory) {
   // Copy over some of the devDependencies
   appPackage.dependencies = appPackage.dependencies || {};
 
-  const useTypeScript = appPackage.dependencies['typescript'] != null;
-
   // Setup the script rules
   appPackage.scripts = {
     test: 'react-scripts test',
@@ -269,10 +266,6 @@ module.exports = async function(appPath, appName, verbose, originalDirectory) {
     ...args,
     useYarn ? '--dev' : '--save-dev',
   ]);
-
-  if (useTypeScript) {
-    verifyTypeScriptSetup();
-  }
 
   if (tryGitInit(appPath)) {
     console.log();
