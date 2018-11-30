@@ -195,7 +195,7 @@ module.exports = async function(appPath, appName, verbose, originalDirectory) {
     appPackage.scripts.docs = 'react-scripts docs';
   } else {
     appPackage.scripts.start = 'react-scripts docs';
-    appPackage.scripts.build = 'tsc';
+    appPackage.scripts.build = 'react-scripts build-lib';
     appPackage.main = 'dist/index.js';
     appPackage.module = 'dist/index.es.js';
     appPackage.files = ['dist'];

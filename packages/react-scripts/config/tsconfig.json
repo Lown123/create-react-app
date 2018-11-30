@@ -14,7 +14,7 @@
     "noEmit": true,
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
