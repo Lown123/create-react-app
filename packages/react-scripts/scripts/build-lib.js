@@ -34,17 +34,14 @@ if (process.env.SKIP_PREFLIGHT_CHECK !== 'true') {
 
 const spawn = require('react-dev-utils/crossSpawn');
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs-extra');
 const paths = require('../config/paths');
 
 // Empty
 fs.emptyDirSync(paths.appBuild);
 
 const command = path.join(paths.appNodeModules, '.bin/tsc');
-const args = [
-  `--outDir=${paths.appBuild}`,
-  `--declarationDir=${paths.appBuild}`,
-];
+const args = ['--outDir', paths.appBuild, '--declarationDir', paths.appBuild];
 
 const proc = spawn.sync(command, args, {
   stdio: 'inherit',

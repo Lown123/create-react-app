@@ -196,10 +196,10 @@ module.exports = async function(appPath, appName, verbose, originalDirectory) {
   } else {
     appPackage.scripts.start = 'react-scripts docs';
     appPackage.scripts.build = 'react-scripts build-lib';
-    appPackage.main = 'dist/index.js';
-    appPackage.module = 'dist/index.es.js';
-    appPackage.files = ['dist'];
-    appPackage.types = 'dist/index.d.ts';
+    appPackage.main = 'build/index.js';
+    appPackage.module = 'build/index.js';
+    appPackage.files = ['build'];
+    appPackage.types = 'build/index.d.ts';
   }
 
   // Setup the eslint config
