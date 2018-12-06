@@ -1,9 +1,7 @@
 {
-  "extends": "./node_modules/@lucidhq/react-scripts/config/tsconfig.lib.json",
+  "extends": "@lucidhq/react-scripts/config/tsconfig.lib.json",
   "compilerOptions": {
-    "baseUrl": "./",
-    "declarationDir": "./dist",
-    "outDir": "./dist"
+    "baseUrl": "./src"
   },
   "include": ["./src/index.ts"],
   "exclude": ["./node_modules/**/*"]
