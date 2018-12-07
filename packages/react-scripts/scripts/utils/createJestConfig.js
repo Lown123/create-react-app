@@ -19,7 +19,7 @@ module.exports = (resolve, rootDir, isEjecting) => {
     (setupTestsMatches && setupTestsMatches[1]) || 'js';
   const setupTestsFile = fs.existsSync(paths.testsSetup)
     ? `<rootDir>/src/setupTests.${setupTestsFileExtension}`
-    : undefined;
+    : require.resolve('../../config/jest/setupTests.js');
 
   const config = {
     collectCoverageFrom: ['src/**/*.{js,jsx,ts,tsx}', '!src/**/*.d.ts'],
