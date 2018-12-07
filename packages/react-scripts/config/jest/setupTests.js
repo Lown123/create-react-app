@@ -1,1 +1,2 @@
-import 'js-dom/extend';
+'use strict';
+require('jest-dom/extend-expect');
